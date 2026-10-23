@@ -1,0 +1,16 @@
+import ts from 'typescript';import fs from 'node:fs';import assert from 'node:assert/strict';
+const compile=p=>ts.transpileModule(fs.readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const source=await import('data:text/javascript;base64,'+Buffer.from(compile('lib/persian-sources.ts')).toString('base64'));
+assert.equal(source.safePage('fitamin','https://fitamin.ir.evil.test/mag/test/'),'');
+assert.equal(source.safePage('fitamin','https://fitamin.ir@evil.test/mag/test/'),'');
+assert.equal(source.safePage('fitamin','javascript:alert(1)'),'');
+assert.equal(source.safePage('fitamin','https://fitamin.ir/mag/movement/test/'),'https://fitamin.ir/mag/movement/test/');
+assert.equal(source.extractMedia('<source src="https://fitamin.ir/mag/videos/test.mp4">','fitamin').media,'https://fitamin.ir/mag/videos/test.mp4');
+assert.equal(source.extractMedia('<source src="https://fitamin.ir.evil.test/video.mp4">','fitamin').media,'');
+assert.equal(source.extractMedia('<script src="https://www.aparat.com/embed/juec445?data[rnddiv]=1"></script>','fitclub').embed,'https://www.aparat.com/video/video/embed/videohash/juec445/vt/frame');
+assert.equal(source.plain('<script>evil()</script><b>نام</b> &#038; آموزش'),'نام & آموزش');
+const oldFetch=globalThis.fetch;
+globalThis.fetch=async url=>new Response(JSON.stringify([{id:123,title:'<b>حرکت</b>',url:'https://fitamin.ir/mag/movement/test/'},{id:124,title:'bad',url:'https://evil.test'}]));
+const result=await source.searchPersian('fitamin','حرکت');assert.equal(result.length,1);assert.equal(result[0].id,'123');assert.equal(result[0].title,'حرکت');
+globalThis.fetch=oldFetch;
+console.log('PASS: source URL validation, media allowlist, Aparat extraction, text sanitization and search response mapping');

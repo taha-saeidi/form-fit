@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1792189147061,
+      "tag": "0000_closed_dormammu",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792231288076,
+      "tag": "0001_dapper_shape",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792234675796,
+      "tag": "0002_jittery_roland_deschain",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1792234936652,
+      "tag": "0003_overrated_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1792255737943,
+      "tag": "0004_ambitious_orphan",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1792256043886,
+      "tag": "0005_wise_molecule_man",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+import {cookies} from 'next/headers';import {googleReady,beginGoogle} from '@/lib/google-auth.mjs';import {rateLimit} from '@/lib/local-auth.mjs';
+export const dynamic='force-dynamic';
+export async function GET(req:Request){if(!googleReady())return Response.json({error:'ورود گوگل هنوز توسط مدیر تنظیم نشده است.'},{status:503});const ip=req.headers.get('cf-connecting-ip')||'local';if(!await rateLimit('oauth:'+ip,30))return Response.json({error:'لطفاً بعداً تلاش کن.'},{status:429});const flow=await beginGoogle(new URL(req.url).searchParams.get('returnTo'));(await cookies()).set('formfit_oauth',flow.state,{httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',path:'/api/auth/google',maxAge:600});return Response.redirect(flow.url,302)}

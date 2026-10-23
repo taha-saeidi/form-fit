@@ -1,0 +1,5 @@
+// Only explicit, per-account workout drafts live on this device; no body profile or camera data.
+export const queueKey=(userId:string)=>'formfit-pending-sets:'+userId;
+export function queued(userId:string):any[]{try{const d=JSON.parse(localStorage.getItem(queueKey(userId))||'[]');return Array.isArray(d)?d.slice(-500):[]}catch{return []}}
+export function enqueue(userId:string,value:any){const rows=queued(userId).filter(v=>!(v.date===value.date&&v.exerciseId===value.exerciseId&&v.setNumber===value.setNumber));localStorage.setItem(queueKey(userId),JSON.stringify([...rows,value]));}
+export async function syncQueue(userId:string){const rows=queued(userId);for(const value of rows){const r=await fetch('/api/training',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(value)});if(!r.ok)throw Error('برخی ست‌های آفلاین هنوز ارسال نشده‌اند؛ اینترنت، حساب و تاریخ تمرین را بررسی کن.');localStorage.setItem(queueKey(userId),JSON.stringify(queued(userId).filter(v=>!(v.date===value.date&&v.exerciseId===value.exerciseId&&v.setNumber===value.setNumber))))}return rows.length}

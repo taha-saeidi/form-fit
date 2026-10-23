@@ -1,0 +1,8 @@
+import {sameOrigin} from '@/lib/local-auth.mjs';
+import {getChatGPTUser} from '@/app/chatgpt-auth';
+import {getDb} from '@/db';import {bodyProfiles} from '@/db/schema';import {eq} from 'drizzle-orm';import {profileSchema} from '@/lib/planner';
+export const dynamic='force-dynamic';
+const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}});
+export async function GET(){const u=await getChatGPTUser();if(!u)return reply({error:'ابتدا وارد حساب شوید.'},401);try{const [p]=await getDb().select().from(bodyProfiles).where(eq(bodyProfiles.userId,u.userId));return reply({profile:p?JSON.parse(p.data):null});}catch{return reply({error:'دریافت پروفایل ممکن نشد.'},503)}}
+export async function PUT(req:Request){const u=await getChatGPTUser();if(!u)return reply({error:'ابتدا وارد حساب شوید.'},401);if(!sameOrigin(req))return reply({error:'درخواست نامعتبر'},403);try{const parsed=profileSchema.safeParse(await req.json());if(!parsed.success)return reply({error:'مقادیر فرم و روزهای تمرین را بررسی کن.'},400);const data=JSON.stringify(parsed.data),updatedAt=new Date().toISOString();await getDb().insert(bodyProfiles).values({userId:u.userId,data,updatedAt}).onConflictDoUpdate({target:bodyProfiles.userId,set:{data,updatedAt}});return reply({profile:parsed.data});}catch{return reply({error:'ذخیرهٔ پروفایل ممکن نشد.'},503)}}
+export async function DELETE(req:Request){const u=await getChatGPTUser();if(!u)return reply({error:'ابتدا وارد حساب شوید.'},401);if(!sameOrigin(req))return reply({error:'درخواست نامعتبر'},403);try{await getDb().delete(bodyProfiles).where(eq(bodyProfiles.userId,u.userId));return reply({ok:true})}catch{return reply({error:'حذف پروفایل انجام نشد.'},503)}}
